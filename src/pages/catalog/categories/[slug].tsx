@@ -14,9 +14,14 @@ interface IProduct {
 export default function Category({products}: CategoryProps) {
     const router = useRouter();
 
+    //must have if the route is dinamic with static props
+    if(router.isFallback){
+        return <div>Loading...</div>
+    }
+
     return (
         <div>
-            <Title>Categories</Title>
+            <Title>{router.query.slug}</Title>
             <ul>
                 {products.map(product => {
                     return (
@@ -30,6 +35,8 @@ export default function Category({products}: CategoryProps) {
     )
 }
 
+
+//when you want to have static props in a dinamic route you need to use static paths
 export const getStaticPaths: GetStaticPaths = async () => {
     const response = await fetch(`http://localhost:3333/categories`)
     const categories = await response.json();
@@ -41,10 +48,11 @@ export const getStaticPaths: GetStaticPaths = async () => {
     })
     return {
         paths: paths,
-        fallback: false
+        fallback: true
     }
 }
 
+//getting the static props from the api
 export const getStaticProps: GetStaticProps<CategoryProps> = async (context) => {
     const { slug } = context.params;
     const response = await fetch(`http://localhost:3333/products?category_id=${slug}`)
